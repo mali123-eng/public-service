@@ -1,4 +1,4 @@
-package com.techshian.digital.client;
+package com.subscription.client;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;

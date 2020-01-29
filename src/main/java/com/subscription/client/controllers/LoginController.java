@@ -92,7 +92,7 @@ public class LoginController
 	@RequestMapping(value="/loginFailed", method=RequestMethod.POST)
 	public ResponseSender loginFailed()
 	{
-		//System.out.println("Inside LoginController loginFailed()");
+		System.out.println("Inside LoginController loginFailed()");
 		ResponseSender responseSender=new ResponseSender();
 		
 		responseSender.setMessage("Login Failed");
