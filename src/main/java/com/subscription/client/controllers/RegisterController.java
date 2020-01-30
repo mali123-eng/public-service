@@ -13,15 +13,13 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 
-
 import com.subscription.client.models.Client;
 import com.subscription.client.request.dto.RegisterRequest;
 import com.subscription.client.request.dto.Subscription;
 import com.subscription.client.response.dto.RegisterResponse;
+import com.subscription.client.security.JwtAuthenticationToken;
 import com.subscription.client.services.service.ClientService;
 import com.subscription.client.services.service.RegisterService;
-
-
 
 @RestController
 public class RegisterController {
@@ -29,30 +27,37 @@ public class RegisterController {
 	RegisterService registerService;
 	@Autowired
 	ClientService clientService;
-	@CrossOrigin(origins="*")
-	@RequestMapping(value="/register", method=RequestMethod.POST)
-	public RegisterResponse addUser(@RequestBody RegisterRequest registerRequest) throws NoSuchAlgorithmException
-	{
-		RegisterResponse registerResponse=null;
-		registerResponse=registerService.registered(registerRequest);
+	@Autowired
+	private JwtAuthenticationToken jwtAuthenticationToken;
+	@CrossOrigin(origins = "*")
+	@RequestMapping(value = "/register", method = RequestMethod.POST)
+	public RegisterResponse addUser(@RequestBody RegisterRequest registerRequest) throws NoSuchAlgorithmException {
+		RegisterResponse registerResponse = null;
+		registerResponse = registerService.registered(registerRequest);
+
 		if (registerResponse != null) {
-			Client client=clientService.getClientByEmail(registerRequest.getEmail());
-			final String uri = "http://localhost:8081/save";
+			Client client = clientService.getClientByEmail(registerRequest.getEmail());
+			final String uri = "http://localhost:8083/rest/save";
 			Subscription subscription = new Subscription();
 			subscription.setClientId(client.getClientId());
 			subscription.setEmail(client.getEmail());
-			//subscription.setGender(client.getGender());
+			// subscription.setGender(client.getGender());
 			subscription.setfName(client.getFirstName());
-			//subscription.setDateOfBith(client.getDob());
-			HttpHeaders headers = new HttpHeaders();
+			// subscription.setDateOfBith(client.getDob()); 
+			HttpHeaders headers = new HttpHeaders() {{
+		        
+		        
+		         String authHeader = "Bearer " + new String( jwtAuthenticationToken.getToken());
+		         set( "Authorization", authHeader );
+		      }};
 			headers.setContentType(MediaType.APPLICATION_JSON);
+			
 			HttpEntity<Subscription> entity = new HttpEntity<>(subscription, headers);
 			RestTemplate restTemplate = new RestTemplate();
 			restTemplate.postForObject(uri, entity, Subscription.class);
 		}
-		
+
 		return registerResponse;
 	}
 
 }
-

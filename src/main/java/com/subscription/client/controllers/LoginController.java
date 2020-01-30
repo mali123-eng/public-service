@@ -61,12 +61,13 @@ public class LoginController
 		Client client=clientService.getClientById(clientReg.getClientId());
 		String firstName=clientReg.getFirstName();
 			
-		System.out.println("Inside LoginController loginMethod() firstName is :-"+firstName);
+		System.out.println("Inside LoginController loginMethod() firstName is :-"+firstName );
 		
 		//user found in the db, make token for it
 		
 		//Loginid is email in client table
 		jwtClient.setClientId(clientReg.getClientId());
+		jwtClient.setEmail(clientReg.getEmail());
 		//ProfileType id role in client table
 		
 		

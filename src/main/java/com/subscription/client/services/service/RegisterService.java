@@ -8,16 +8,22 @@ import java.util.List;
 import java.util.Random;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
 import com.subscription.client.config.JwtConfig;
 import com.subscription.client.domain.JwtClient;
 import com.subscription.client.models.Client;
 import com.subscription.client.repository.ClientRepository;
 import com.subscription.client.request.dto.RegisterRequest;
+import com.subscription.client.request.dto.TokenRequest;
 import com.subscription.client.response.dto.RegisterResponse;
 import com.subscription.client.security.FieldValidation;
+import com.subscription.client.security.JwtAuthenticationToken;
 import com.subscription.client.utils.JwtGenerator;
 import com.subscription.client.utils.JwtValidator;
 
@@ -29,7 +35,8 @@ import io.jsonwebtoken.SignatureAlgorithm;
 public class RegisterService {
 	@Autowired
 	ClientRepository clientRepository;
-
+	@Autowired
+	private JwtAuthenticationToken jwtAuthenticationToken;
 	@Autowired
 	JwtClient jwtClient;
 
@@ -84,15 +91,34 @@ public class RegisterService {
 			}
 			System.out.println(sb.toString());
 			String secret = sb.toString();
-			int length=secret.length();
-			       String s=secret.substring(length/2);
+			int length = secret.length();
+			String s = secret.substring(length / 2);
 			client.setClientSecret(s);
 			registerResponse.setMessage("You are Successfully Register");
 			registerResponse.setFirstName(registerRequest.getFirstName());
-			clientRepository.save(client);
+			Client registerClient = clientRepository.save(client);
+
+			jwtClient.setClientId(registerClient.getClientId());
+			jwtClient.setEmail(registerClient.getEmail());
 
 			String token = tokenGenerator.generate();
+
+			jwtAuthenticationToken.setToken(token);
 			// boolean emailVerificationStatus=sendEmailForVerification(email);
+
+			if (registerResponse != null) {
+
+				final String uri = "http://localhost:8083/token";
+				TokenRequest tokenRequest = new TokenRequest();
+				tokenRequest.setToken(token);
+
+				HttpHeaders headers = new HttpHeaders();
+				headers.setContentType(MediaType.APPLICATION_JSON);
+				HttpEntity<TokenRequest> entity = new HttpEntity<>(tokenRequest, headers);
+				RestTemplate restTemplate = new RestTemplate();
+				restTemplate.postForObject(uri, entity, TokenRequest.class);
+			}
+
 		} else {
 			registerResponse.setMessage("email is already in used");
 		}

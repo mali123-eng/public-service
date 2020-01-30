@@ -17,7 +17,7 @@ public class CustomClientDetails extends Client implements UserDetails {
 	private String token;
 	
 	private Collection<? extends GrantedAuthority> grantedAuthorities ;
-		// TODO Auto-generated method stub
+		
 	public CustomClientDetails(String email, int clientId, String token, List<GrantedAuthority> grantedAuthorities) 
 	{
 		this.email=email;
@@ -28,37 +28,37 @@ public class CustomClientDetails extends Client implements UserDetails {
 
 	@Override
 	public String getUsername() {
-		// TODO Auto-generated method stub
+		
 		return email;
 	}
 
 	@Override
 	public boolean isAccountNonExpired() {
-		// TODO Auto-generated method stub
+		
 		return true;
 	}
 
 	@Override
 	public boolean isAccountNonLocked() {
-		// TODO Auto-generated method stub
+		
 		return true;
 	}
 
 	@Override
 	public boolean isCredentialsNonExpired() {
-		// TODO Auto-generated method stub
+		
 		return true;
 	}
 
 	@Override
 	public boolean isEnabled() {
-		// TODO Auto-generated method stub
+		
 		return true;
 	}
 
 	@Override
 	public Collection<? extends GrantedAuthority> getAuthorities() {
-		// TODO Auto-generated method stub
+		
 		return grantedAuthorities;
 	}
 
